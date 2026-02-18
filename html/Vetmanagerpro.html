@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VetManager Pro</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:    #1a2535;
+  --primary-l:  #243348;
+  --blue:       #3b82f6;
+  --blue-d:     #2563eb;
+  --green:      #10b981;
+  --green-d:    #059669;
+  --amber:      #f59e0b;
+  --red:        #ef4444;
+  --bg:         #f0f4f8;
+  --surface:    #ffffff;
+  --border:     #e2e8f0;
+  --text:       #1e293b;
+  --muted:      #64748b;
+  --muted-l:    #94a3b8;
+  --radius:     12px;
+  --shadow:     0 4px 24px rgba(0,0,0,0.07);
+  --shadow-lg:  0 8px 40px rgba(0,0,0,0.13);
+  --sidebar:    260px;
+  --transition: 0.22s cubic-bezier(.4,0,.2,1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+/* ══ SIDEBAR ══════════════════════════════════════════════════ */
+aside {
+  width: var(--sidebar); min-width: var(--sidebar);
+  background: var(--primary);
+  display: flex; flex-direction: column;
+  padding: 0; overflow: hidden;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+  z-index: 50;
+}
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-logo .brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem; color: #fff;
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-logo .brand .paw-icon {
+  width: 36px; height: 36px;
+  background: var(--blue);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: #fff;
+}
+.sidebar-logo .version {
+  font-size: 0.7rem; color: var(--muted-l);
+  margin-top: 4px; letter-spacing: .04em;
+}
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-section-title {
+  font-size: 0.65rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: #4a5568; padding: 12px 12px 6px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border-radius: 9px;
+  color: #94a3b8; cursor: pointer;
+  font-size: 0.88rem; font-weight: 500;
+  transition: all var(--transition);
+  margin-bottom: 2px;
+}
+.nav-item i { width: 18px; text-align: center; font-size: 0.95rem; }
+.nav-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+.nav-item.active { background: var(--blue); color: #fff; box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-footer .status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%; background: var(--green);
+  display: inline-block; margin-right: 6px;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; } 50% { opacity:.4; }
+}
+.sidebar-footer span { font-size: 0.75rem; color: var(--muted-l); }
+
+/* ══ MAIN ══════════════════════════════════════════════════════ */
+main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Topbar ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 64px; min-height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 1px 0 var(--border);
+}
+.topbar h2 {
+  font-size: 1.1rem; font-weight: 700; color: var(--text);
+}
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+#clock { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border: none; border-radius: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all var(--transition); }
+.btn-sm { padding: 7px 13px; font-size: 0.8rem; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: var(--blue-d); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+.btn-success { background: var(--green); color: #fff; }
+.btn-success:hover { background: var(--green-d); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { filter: brightness(1.1); }
+.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: rgba(59,130,246,0.05); }
+
+/* ── Content wrapper ── */
+.content-wrapper { flex: 1; overflow-y: auto; padding: 28px; }
+.section { display: none; animation: fadeUp 0.28s ease; }
+.section.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* ══ DASHBOARD ════════════════════════════════════════════════ */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 16px;
+  transition: transform var(--transition);
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.stat-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.stat-icon.blue  { background: rgba(59,130,246,0.12); color: var(--blue); }
+.stat-icon.green { background: rgba(16,185,129,0.12); color: var(--green); }
+.stat-icon.amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+.stat-icon.red   { background: rgba(239,68,68,0.12);  color: var(--red); }
+.stat-info h3 { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+.stat-info p  { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+/* ══ TABLA ═════════════════════════════════════════════════════ */
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.card-header {
+  padding: 18px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.card-header h3 { font-size: 0.95rem; font-weight: 700; }
+.card-body { padding: 0; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 11px 22px; text-align: left;
+  font-size: 0.72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { transition: background var(--transition); }
+tbody tr:hover { background: #f8fafc; }
+tbody td { padding: 13px 22px; font-size: 0.875rem; border-bottom: 1px solid var(--border); }
+tbody tr:last-child td { border-bottom: none; }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 0.72rem; font-weight: 600;
+}
+.badge-green { background: rgba(16,185,129,0.1); color: var(--green-d); }
+.badge-amber { background: rgba(245,158,11,0.1); color: #d97706; }
+.badge-red   { background: rgba(239,68,68,0.1);  color: #dc2626; }
+.badge-blue  { background: rgba(59,130,246,0.1);  color: var(--blue-d); }
+.action-btns { display: flex; gap: 7px; }
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: none; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 0.8rem; transition: all var(--transition);
+}
+.icon-btn.edit  { background: rgba(59,130,246,0.1); color: var(--blue); }
+.icon-btn.edit:hover  { background: var(--blue); color: #fff; }
+.icon-btn.trash { background: rgba(239,68,68,0.1); color: var(--red); }
+.icon-btn.trash:hover { background: var(--red); color: #fff; }
+
+/* ══ SEARCH BAR ════════════════════════════════════════════════ */
+.search-bar {
+  display: flex; gap: 10px; align-items: center;
+  margin-bottom: 18px;
+}
+.search-input-wrap { position: relative; flex: 1; max-width: 340px; }
+.search-input-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted-l); font-size: 0.85rem; }
+.search-input-wrap input { width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.85rem; background: var(--surface); color: var(--text); transition: border-color var(--transition); outline: none; }
+.search-input-wrap input:focus { border-color: var(--blue); }
+
+/* ══ MODAL ═════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--transition);
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  width: min(540px, calc(100vw - 40px));
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(20px) scale(.97);
+  transition: transform var(--transition);
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+.modal-header {
+  padding: 22px 26px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { font-size: 1rem; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 1.1rem; color: var(--muted); cursor: pointer; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background var(--transition); }
+.modal-close:hover { background: var(--bg); }
+.modal-body { padding: 22px 26px; }
+.modal-footer { padding: 16px 26px 22px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--border); }
+
+/* ══ FORM ══════════════════════════════════════════════════════ */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%; padding: 10px 13px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 0.875rem;
+  color: var(--text); background: var(--surface);
+  transition: border-color var(--transition); outline: none;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group textarea { resize: vertical; min-height: 80px; }
+
+/* ══ TOAST ═════════════════════════════════════════════════════ */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--primary); color: #fff;
+  padding: 13px 18px; border-radius: 11px;
+  font-size: 0.85rem; font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease;
+  min-width: 260px;
+}
+.toast.success { background: #065f46; border-left: 3px solid var(--green); }
+.toast.error   { background: #7f1d1d; border-left: 3px solid var(--red); }
+@keyframes toastIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+
+/* ══ EMPTY STATE ═══════════════════════════════════════════════ */
+.empty-state { padding: 48px; text-align: center; color: var(--muted); }
+.empty-state i { font-size: 2.5rem; margin-bottom: 12px; opacity: .3; }
+.empty-state p { font-size: 0.875rem; }
+
+/* ══ CITAS SECTION ════════════════════════════════════════════ */
+.citas-layout { display: grid; grid-template-columns: 1fr 380px; gap: 18px; }
+.citas-form-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+
+/* ══ AVATAR ════════════════════════════════════════════════════ */
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: #fff;
+  background: var(--blue); flex-shrink: 0;
+}
+
+/* ══ SCROLLBAR ════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+
+/* ══ CONFIRM DIALOG ═══════════════════════════════════════════ */
+.confirm-dialog {
+  background: var(--surface); border-radius: 14px;
+  padding: 28px; text-align: center;
+  width: min(360px, calc(100vw - 40px));
+  box-shadow: var(--shadow-lg);
+  transform: scale(.95);
+  transition: transform var(--transition);
+}
+.modal-overlay.open .confirm-dialog { transform: scale(1); }
+.confirm-dialog .confirm-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.confirm-dialog h3 { font-size: 1rem; margin-bottom: 8px; }
+.confirm-dialog p { font-size: 0.85rem; color: var(--muted); margin-bottom: 22px; }
+.confirm-dialog .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════ -->
+<aside>
+  <div class="sidebar-logo">
+    <div class="brand">
+      <div class="paw-icon"><i class="fas fa-paw"></i></div>
+      VetManager
+    </div>
+    <div class="version">PRO v2.0 — Sistema de Gestión</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section-title">General</div>
+    <div class="nav-item active" id="nav-dashboard" onclick="showSection('dashboard')">
+      <i class="fas fa-chart-line"></i> Dashboard
+    </div>
+    <div class="nav-item" id="nav-clientes" onclick="showSection('clientes')">
+      <i class="fas fa-users"></i> Clientes
+    </div>
+    <div class="nav-item" id="nav-pacientes" onclick="showSection('pacientes')">
+      <i class="fas fa-dog"></i> Pacientes
+    </div>
+    <div class="nav-item" id="nav-citas" onclick="showSection('citas')">
+      <i class="fas fa-calendar-check"></i> Citas
+    </div>
+
+    <div class="nav-section-title">Reportes</div>
+    <div class="nav-item" onclick="generarInformeDiario()">
+      <i class="fas fa-file-medical-alt"></i> Informe Diario
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <span class="status-dot"></span>
+    <span id="db-status">Conectado a MySQL</span>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════ -->
+<main>
+  <div class="topbar">
+    <h2 id="page-title">Dashboard Principal</h2>
+    <div class="topbar-right">
+      <span id="clock"></span>
+      <button class="btn btn-success" onclick="guardarDatos()">
+        <i class="fas fa-save"></i> Guardar datos
+      </button>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+
+    <!-- ══ DASHBOARD ══════════════════════════════════════════════ -->
+    <div id="section-dashboard" class="section active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-calendar-day"></i></div>
+          <div class="stat-info">
+            <h3 id="stat-citas-hoy">0</h3>
+            <p>Citas hoy</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-users"></i></div>
+          <div class="stat-info">
+            <h3 id="stat-clientes">0</h3>
+            <p>Clientes registrados</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber"><i class="fas fa-paw"></i></div>
+          <div class="stat-info">
+            <h3 id="stat-pacientes">0</h3>
+            <p>Pacientes activos</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-calendar-alt"></i></div>
+          <div class="stat-info">
+            <h3 id="stat-citas-total">0</h3>
+            <p>Citas totales</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-clock" style="color:var(--blue);margin-right:8px"></i>Próximas Citas</h3>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Fecha</th><th>Paciente</th><th>Motivo</th><th>Estado</th></tr></thead>
+              <tbody id="dashboard-citas-tabla"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-user-plus" style="color:var(--green);margin-right:8px"></i>Clientes Recientes</h3>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Cliente</th><th>Teléfono</th></tr></thead>
+              <tbody id="dashboard-clientes-tabla"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CLIENTES ═══════════════════════════════════════════════ -->
+    <div id="section-clientes" class="section">
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="buscar-cliente" placeholder="Buscar cliente..." oninput="filtrarClientes()">
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalCliente()">
+          <i class="fas fa-plus"></i> Nuevo Cliente
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Cliente</th><th>Teléfono</th><th>Email</th><th>Dirección</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-clientes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PACIENTES ══════════════════════════════════════════════ -->
+    <div id="section-pacientes" class="section">
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="buscar-paciente" placeholder="Buscar paciente..." oninput="filtrarPacientes()">
+        </div>
+        <button class="btn btn-primary" onclick="abrirModalPaciente()">
+          <i class="fas fa-plus"></i> Nuevo Paciente
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Nombre</th><th>Especie</th><th>Raza</th><th>Edad</th><th>Dueño</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-pacientes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CITAS ══════════════════════════════════════════════════ -->
+    <div id="section-citas" class="section">
+      <div class="citas-layout">
+        <!-- Lista de citas -->
+        <div>
+          <div class="search-bar">
+            <div class="search-input-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="buscar-cita" placeholder="Buscar por paciente o motivo..." oninput="filtrarCitas()">
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Fecha</th><th>Paciente</th><th>Motivo</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tabla-citas"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario agendar -->
+        <div class="citas-form-card">
+          <div class="card-header">
+            <h3><i class="fas fa-calendar-plus" style="color:var(--blue);margin-right:8px"></i>Agendar Cita</h3>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Paciente</label>
+              <select id="cita-paciente-select"></select>
+            </div>
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" id="cita-fecha">
+            </div>
+            <div class="form-group">
+              <label>Motivo</label>
+              <input type="text" id="cita-motivo" placeholder="Ej: Revisión anual, Vacunación...">
+            </div>
+            <div class="form-group">
+              <label>Observaciones</label>
+              <textarea id="cita-observaciones" placeholder="Notas adicionales..."></textarea>
+            </div>
+            <button class="btn btn-success" style="width:100%" onclick="agregarCita()">
+              <i class="fas fa-check"></i> Confirmar y Agendar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content-wrapper -->
+</main>
+
+<!-- ══ MODAL CLIENTES ════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-cliente-titulo">Nuevo Cliente</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-cliente')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cliente-edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre completo *</label>
+          <input type="text" id="cliente-nombre" placeholder="Ej: Carlos Ruiz">
+        </div>
+        <div class="form-group">
+          <label>Teléfono *</label>
+          <input type="tel" id="cliente-telefono" placeholder="600 123 456">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="cliente-email" placeholder="correo@ejemplo.com">
+      </div>
+      <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" id="cliente-direccion" placeholder="Calle, número, ciudad">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCliente()">
+        <i class="fas fa-save"></i> Guardar Cliente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL PACIENTES ═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-paciente">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-paciente-titulo">Nuevo Paciente</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-paciente')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="paciente-edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del animal *</label>
+          <input type="text" id="paciente-nombre" placeholder="Ej: Bruno">
+        </div>
+        <div class="form-group">
+          <label>Especie *</label>
+          <select id="paciente-especie">
+            <option value="">Seleccionar...</option>
+            <option>Perro</option><option>Gato</option><option>Ave</option>
+            <option>Conejo</option><option>Reptil</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Raza</label>
+          <input type="text" id="paciente-raza" placeholder="Ej: Labrador">
+        </div>
+        <div class="form-group">
+          <label>Edad (años)</label>
+          <input type="number" id="paciente-edad" min="0" max="30" placeholder="3">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Dueño (Cliente) *</label>
+        <select id="paciente-dueno"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-paciente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPaciente()">
+        <i class="fas fa-save"></i> Guardar Paciente
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL EDITAR CITA ═════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-cita-editar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Editar Cita</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-cita-editar')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cita-edit-id">
+      <div class="form-group">
+        <label>Paciente</label>
+        <input type="text" id="cita-edit-paciente" disabled style="background:#f8fafc;color:var(--muted)">
+      </div>
+      <div class="form-group">
+        <label>Fecha</label>
+        <input type="date" id="cita-edit-fecha">
+      </div>
+      <div class="form-group">
+        <label>Motivo</label>
+        <input type="text" id="cita-edit-motivo">
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="cita-edit-observaciones"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-cita-editar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarEdicionCita()">
+        <i class="fas fa-save"></i> Guardar Cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMAR BORRADO ═══════════════════════════════════ -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="confirm-dialog">
+    <div class="confirm-icon">🗑️</div>
+    <h3 id="confirm-title">¿Eliminar registro?</h3>
+    <p id="confirm-msg">Esta acción no se puede deshacer.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="cerrarModal('modal-confirm')">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-action-btn">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOAST CONTAINER ═══════════════════════════════════════════ -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+//  ESTADO DE LA APLICACIÓN
+// ══════════════════════════════════════════════════════════════════
+const DB = {
+  clientes: [
+    { id:1, nombre:'Carlos Ruiz',    telefono:'600 123 456', email:'carlos@mail.com', direccion:'Calle Mayor 12, Madrid' },
+    { id:2, nombre:'Ana Belén Mora', telefono:'655 987 321', email:'ana@mail.com',    direccion:'Av. Libertad 5, Barcelona' },
+    { id:3, nombre:'Jorge Martín',   telefono:'699 441 872', email:'jorge@mail.com',  direccion:'C/ Pinos 3, Valencia' },
+  ],
+  pacientes: [
+    { id:101, nombre:'Bruno',  especie:'Perro', raza:'Boxer',         edad:4, clienteId:1 },
+    { id:102, nombre:'Kira',   especie:'Gato',  raza:'Común Europeo', edad:2, clienteId:2 },
+    { id:103, nombre:'Toby',   especie:'Perro', raza:'Golden',        edad:6, clienteId:3 },
+    { id:104, nombre:'Misi',   especie:'Gato',  raza:'Siamés',        edad:1, clienteId:2 },
+  ],
+  citas: [
+    { id:1001, pacienteId:101, fecha:'2026-02-17', motivo:'Revisión anual',     observaciones:'Sin novedades' },
+    { id:1002, pacienteId:102, fecha:'2026-02-17', motivo:'Vacunación triple',  observaciones:'' },
+    { id:1003, pacienteId:103, fecha:'2026-02-18', motivo:'Control de peso',    observaciones:'Dieta baja en grasas' },
+    { id:1004, pacienteId:104, fecha:'2026-02-20', motivo:'Cirugía programada', observaciones:'Ayuno previo 12h' },
+  ],
+  nextClienteId:  4,
+  nextPacienteId: 105,
+  nextCitaId:     1005,
+};
+
+// ══════════════════════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════════════════════
+const TITLES = {
+  dashboard:  'Dashboard Principal',
+  clientes:   'Gestión de Clientes',
+  pacientes:  'Expedientes de Pacientes',
+  citas:      'Agenda de Citas',
+};
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  document.getElementById('page-title').textContent = TITLES[id];
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'clientes')  renderClientes();
+  if (id === 'pacientes') renderPacientes();
+  if (id === 'citas')     renderCitas();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  RELOJ
+// ══════════════════════════════════════════════════════════════════
+(function clock() {
+  const el = document.getElementById('clock');
+  function tick() {
+    el.textContent = new Date().toLocaleString('es-ES', {
+      weekday:'short', day:'2-digit', month:'short',
+      hour:'2-digit', minute:'2-digit', second:'2-digit'
+    });
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+// ══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════════
+function getNombreCliente(id) {
+  const c = DB.clientes.find(x => x.id === id);
+  return c ? c.nombre : '—';
+}
+function getNombrePaciente(id) {
+  const p = DB.pacientes.find(x => x.id === id);
+  return p ? p.nombre : '—';
+}
+function avatarLetras(nombre) {
+  return nombre.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+}
+function coloresAvatar(id) {
+  const colors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4'];
+  return colors[id % colors.length];
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════════════
+function toast(msg, type = 'success') {
+  const cont = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i>${msg}`;
+  cont.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(30px)'; el.style.transition='.3s'; setTimeout(()=>el.remove(),300); }, 3000);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════════════════════
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+// Cerrar al hacer click fuera
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  CONFIRMACIÓN DE BORRADO
+// ══════════════════════════════════════════════════════════════════
+function confirmar(titulo, msg, fn) {
+  document.getElementById('confirm-title').textContent = titulo;
+  document.getElementById('confirm-msg').textContent   = msg;
+  const btn = document.getElementById('confirm-action-btn');
+  btn.onclick = () => { fn(); cerrarModal('modal-confirm'); };
+  abrirModal('modal-confirm');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const hoy = new Date().toISOString().slice(0,10);
+  const citasHoy = DB.citas.filter(c => c.fecha === hoy);
+
+  document.getElementById('stat-clientes').textContent    = DB.clientes.length;
+  document.getElementById('stat-pacientes').textContent   = DB.pacientes.length;
+  document.getElementById('stat-citas-total').textContent = DB.citas.length;
+  document.getElementById('stat-citas-hoy').textContent   = citasHoy.length;
+
+  // Tabla próximas citas (ordenadas por fecha)
+  const proximas = [...DB.citas].sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,5);
+  const tbody1 = document.getElementById('dashboard-citas-tabla');
+  if (!proximas.length) {
+    tbody1.innerHTML = '<tr><td colspan="4" class="empty-state" style="padding:32px;text-align:center;color:var(--muted)"><i class="fas fa-calendar-check" style="display:block;font-size:1.8rem;margin-bottom:8px;opacity:.3"></i>Sin citas registradas</td></tr>';
+  } else {
+    tbody1.innerHTML = proximas.map(c => {
+      const esHoy = c.fecha === hoy;
+      const badge = esHoy ? '<span class="badge badge-green">Hoy</span>' : '<span class="badge badge-blue">Próxima</span>';
+      return `<tr>
+        <td>${c.fecha}</td>
+        <td>${getNombrePaciente(c.pacienteId)}</td>
+        <td>${c.motivo}</td>
+        <td>${badge}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Tabla clientes recientes
+  const recientes = DB.clientes.slice(-4).reverse();
+  const tbody2 = document.getElementById('dashboard-clientes-tabla');
+  tbody2.innerHTML = recientes.map(c => `
+    <tr>
+      <td style="display:flex;align-items:center;gap:10px">
+        <div class="avatar" style="background:${coloresAvatar(c.id)}">${avatarLetras(c.nombre)}</div>
+        <span>${c.nombre}</span>
+      </td>
+      <td style="color:var(--muted)">${c.telefono}</td>
+    </tr>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CLIENTES
+// ══════════════════════════════════════════════════════════════════
+function renderClientes(filtro='') {
+  const lista = filtro
+    ? DB.clientes.filter(c => c.nombre.toLowerCase().includes(filtro.toLowerCase()) || c.email.toLowerCase().includes(filtro.toLowerCase()))
+    : DB.clientes;
+
+  const tbody = document.getElementById('tabla-clientes');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users"></i><p>No hay clientes${filtro?' que coincidan':' registrados'}.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td style="color:var(--muted);font-size:.8rem">#${c.id}</td>
+      <td style="display:flex;align-items:center;gap:10px;padding-top:13px">
+        <div class="avatar" style="background:${coloresAvatar(c.id)}">${avatarLetras(c.nombre)}</div>
+        <strong>${c.nombre}</strong>
+      </td>
+      <td>${c.telefono}</td>
+      <td style="color:var(--muted)">${c.email}</td>
+      <td style="color:var(--muted);font-size:.8rem">${c.direccion}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn edit"  onclick="editarCliente(${c.id})" title="Editar"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn trash" onclick="eliminarCliente(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrarClientes() {
+  renderClientes(document.getElementById('buscar-cliente').value);
+}
+
+function abrirModalCliente(id=null) {
+  document.getElementById('modal-cliente-titulo').textContent = id ? 'Editar Cliente' : 'Nuevo Cliente';
+  document.getElementById('cliente-edit-id').value    = id || '';
+  document.getElementById('cliente-nombre').value     = '';
+  document.getElementById('cliente-telefono').value   = '';
+  document.getElementById('cliente-email').value      = '';
+  document.getElementById('cliente-direccion').value  = '';
+
+  if (id) {
+    const c = DB.clientes.find(x => x.id === id);
+    if (c) {
+      document.getElementById('cliente-nombre').value    = c.nombre;
+      document.getElementById('cliente-telefono').value  = c.telefono;
+      document.getElementById('cliente-email').value     = c.email;
+      document.getElementById('cliente-direccion').value = c.direccion;
+    }
+  }
+  abrirModal('modal-cliente');
+}
+
+function guardarCliente() {
+  const nombre    = document.getElementById('cliente-nombre').value.trim();
+  const telefono  = document.getElementById('cliente-telefono').value.trim();
+  const email     = document.getElementById('cliente-email').value.trim();
+  const direccion = document.getElementById('cliente-direccion').value.trim();
+  const editId    = document.getElementById('cliente-edit-id').value;
+
+  if (!nombre || !telefono) { toast('Nombre y teléfono son obligatorios', 'error'); return; }
+
+  if (editId) {
+    const c = DB.clientes.find(x => x.id === parseInt(editId));
+    if (c) { c.nombre = nombre; c.telefono = telefono; c.email = email; c.direccion = direccion; }
+    toast('Cliente actualizado correctamente');
+  } else {
+    DB.clientes.push({ id: DB.nextClienteId++, nombre, telefono, email, direccion });
+    toast('Cliente registrado con éxito');
+  }
+
+  cerrarModal('modal-cliente');
+  renderClientes();
+  renderDashboard();
+}
+
+function editarCliente(id) { abrirModalCliente(id); }
+
+function eliminarCliente(id) {
+  const tieneParientes = DB.pacientes.some(p => p.clienteId === id);
+  if (tieneParientes) {
+    toast('No se puede eliminar: tiene pacientes asociados', 'error'); return;
+  }
+  const c = DB.clientes.find(x => x.id === id);
+  confirmar(`¿Eliminar a ${c.nombre}?`, 'Esta acción no se puede deshacer.', () => {
+    DB.clientes = DB.clientes.filter(x => x.id !== id);
+    renderClientes();
+    renderDashboard();
+    toast('Cliente eliminado');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  PACIENTES
+// ══════════════════════════════════════════════════════════════════
+function renderPacientes(filtro='') {
+  const lista = filtro
+    ? DB.pacientes.filter(p => p.nombre.toLowerCase().includes(filtro.toLowerCase()) || p.especie.toLowerCase().includes(filtro.toLowerCase()))
+    : DB.pacientes;
+
+  const tbody = document.getElementById('tabla-pacientes');
+  if (!lista.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-dog"></i><p>No hay pacientes${filtro?' que coincidan':' registrados'}.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(p => `
+    <tr>
+      <td style="color:var(--muted);font-size:.8rem">#${p.id}</td>
+      <td><strong>${p.nombre}</strong></td>
+      <td><span class="badge badge-blue">${p.especie}</span></td>
+      <td style="color:var(--muted)">${p.raza}</td>
+      <td>${p.edad} año${p.edad===1?'':'s'}</td>
+      <td>${getNombreCliente(p.clienteId)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn edit"  onclick="editarPaciente(${p.id})" title="Editar"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn trash" onclick="eliminarPaciente(${p.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrarPacientes() {
+  renderPacientes(document.getElementById('buscar-paciente').value);
+}
+
+function abrirModalPaciente(id=null) {
+  document.getElementById('modal-paciente-titulo').textContent = id ? 'Editar Paciente' : 'Nuevo Paciente';
+  document.getElementById('paciente-edit-id').value  = id || '';
+  document.getElementById('paciente-nombre').value   = '';
+  document.getElementById('paciente-especie').value  = '';
+  document.getElementById('paciente-raza').value     = '';
+  document.getElementById('paciente-edad').value     = '';
+
+  // Poblar select de dueños
+  const sel = document.getElementById('paciente-dueno');
+  sel.innerHTML = DB.clientes.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('');
+
+  if (id) {
+    const p = DB.pacientes.find(x => x.id === id);
+    if (p) {
+      document.getElementById('paciente-nombre').value   = p.nombre;
+      document.getElementById('paciente-especie').value  = p.especie;
+      document.getElementById('paciente-raza').value     = p.raza;
+      document.getElementById('paciente-edad').value     = p.edad;
+      sel.value = p.clienteId;
+    }
+  }
+  abrirModal('modal-paciente');
+}
+
+function guardarPaciente() {
+  const nombre   = document.getElementById('paciente-nombre').value.trim();
+  const especie  = document.getElementById('paciente-especie').value;
+  const raza     = document.getElementById('paciente-raza').value.trim();
+  const edad     = parseInt(document.getElementById('paciente-edad').value) || 0;
+  const clienteId= parseInt(document.getElementById('paciente-dueno').value);
+  const editId   = document.getElementById('paciente-edit-id').value;
+
+  if (!nombre || !especie) { toast('Nombre y especie son obligatorios', 'error'); return; }
+
+  if (editId) {
+    const p = DB.pacientes.find(x => x.id === parseInt(editId));
+    if (p) { p.nombre = nombre; p.especie = especie; p.raza = raza; p.edad = edad; p.clienteId = clienteId; }
+    toast('Paciente actualizado correctamente');
+  } else {
+    DB.pacientes.push({ id: DB.nextPacienteId++, nombre, especie, raza, edad, clienteId });
+    toast('Paciente registrado con éxito');
+  }
+
+  cerrarModal('modal-paciente');
+  renderPacientes();
+  renderDashboard();
+}
+
+function editarPaciente(id) { abrirModalPaciente(id); }
+
+function eliminarPaciente(id) {
+  const p = DB.pacientes.find(x => x.id === id);
+  confirmar(`¿Eliminar a ${p.nombre}?`, 'Se eliminarán también sus citas asociadas.', () => {
+    DB.pacientes = DB.pacientes.filter(x => x.id !== id);
+    DB.citas     = DB.citas.filter(c => c.pacienteId !== id);
+    renderPacientes();
+    renderDashboard();
+    toast('Paciente y sus citas eliminados');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CITAS
+// ══════════════════════════════════════════════════════════════════
+function renderCitas(filtro='') {
+  // Poblar select de pacientes del formulario
+  const sel = document.getElementById('cita-paciente-select');
+  sel.innerHTML = DB.pacientes.map(p =>
+    `<option value="${p.id}">${p.nombre} — ${getNombreCliente(p.clienteId)}</option>`
+  ).join('');
+
+  // Poner fecha de hoy por defecto
+  if (!document.getElementById('cita-fecha').value) {
+    document.getElementById('cita-fecha').value = new Date().toISOString().slice(0,10);
+  }
+
+  const lista = filtro
+    ? DB.citas.filter(c =>
+        getNombrePaciente(c.pacienteId).toLowerCase().includes(filtro.toLowerCase()) ||
+        c.motivo.toLowerCase().includes(filtro.toLowerCase()))
+    : DB.citas;
+
+  const sorted = [...lista].sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const tbody  = document.getElementById('tabla-citas');
+  const hoy    = new Date().toISOString().slice(0,10);
+
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-calendar-check"></i><p>No hay citas${filtro?' que coincidan':' registradas'}.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(c => {
+    const badge = c.fecha === hoy
+      ? '<span class="badge badge-green">Hoy</span>'
+      : c.fecha < hoy
+        ? '<span class="badge badge-amber">Pasada</span>'
+        : '<span class="badge badge-blue">Próxima</span>';
+    return `<tr>
+      <td style="color:var(--muted);font-size:.8rem">#${c.id}</td>
+      <td>${c.fecha}</td>
+      <td>${getNombrePaciente(c.pacienteId)}</td>
+      <td>${c.motivo} ${badge}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn edit"  onclick="editarCita(${c.id})" title="Editar"><i class="fas fa-pen"></i></button>
+          <button class="icon-btn trash" onclick="eliminarCita(${c.id})" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarCitas() {
+  renderCitas(document.getElementById('buscar-cita').value);
+}
+
+function agregarCita() {
+  const pacienteId   = parseInt(document.getElementById('cita-paciente-select').value);
+  const fecha        = document.getElementById('cita-fecha').value;
+  const motivo       = document.getElementById('cita-motivo').value.trim();
+  const observaciones= document.getElementById('cita-observaciones').value.trim();
+
+  if (!fecha || !motivo) { toast('Fecha y motivo son obligatorios', 'error'); return; }
+
+  DB.citas.push({ id: DB.nextCitaId++, pacienteId, fecha, motivo, observaciones });
+
+  // Limpiar formulario
+  document.getElementById('cita-motivo').value = '';
+  document.getElementById('cita-observaciones').value = '';
+
+  renderCitas();
+  renderDashboard();
+  toast('Cita agendada correctamente ✓');
+}
+
+function editarCita(id) {
+  const c = DB.citas.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('cita-edit-id').value             = c.id;
+  document.getElementById('cita-edit-paciente').value       = getNombrePaciente(c.pacienteId);
+  document.getElementById('cita-edit-fecha').value          = c.fecha;
+  document.getElementById('cita-edit-motivo').value         = c.motivo;
+  document.getElementById('cita-edit-observaciones').value  = c.observaciones;
+  abrirModal('modal-cita-editar');
+}
+
+function guardarEdicionCita() {
+  const id    = parseInt(document.getElementById('cita-edit-id').value);
+  const fecha = document.getElementById('cita-edit-fecha').value;
+  const motivo= document.getElementById('cita-edit-motivo').value.trim();
+  const obs   = document.getElementById('cita-edit-observaciones').value.trim();
+
+  if (!fecha || !motivo) { toast('Fecha y motivo son obligatorios', 'error'); return; }
+
+  const c = DB.citas.find(x => x.id === id);
+  if (c) { c.fecha = fecha; c.motivo = motivo; c.observaciones = obs; }
+
+  cerrarModal('modal-cita-editar');
+  renderCitas();
+  renderDashboard();
+  toast('Cita actualizada correctamente');
+}
+
+function eliminarCita(id) {
+  const c = DB.citas.find(x => x.id === id);
+  confirmar(`¿Eliminar cita #${c.id}?`, `${c.motivo} — ${c.fecha}`, () => {
+    DB.citas = DB.citas.filter(x => x.id !== id);
+    renderCitas();
+    renderDashboard();
+    toast('Cita eliminada');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  GUARDAR (simula llamada al backend Java)
+// ══════════════════════════════════════════════════════════════════
+function guardarDatos() {
+  // En integración real: llamada HTTP al servidor Java / API REST
+  toast('Datos sincronizados con MySQL y respaldo .dat generado ✓');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  INFORME DIARIO
+// ══════════════════════════════════════════════════════════════════
+function generarInformeDiario() {
+  const hoy    = new Date().toISOString().slice(0,10);
+  const hoyFmt = new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const cHoy   = DB.citas.filter(c => c.fecha === hoy);
+
+  let html = `
+    <h2 style="font-family:'Playfair Display',serif;margin-bottom:4px">Informe Diario</h2>
+    <p style="color:var(--muted);margin-bottom:20px;font-size:.85rem">${hoyFmt}</p>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-calendar-day"></i></div><div class="stat-info"><h3>${cHoy.length}</h3><p>Citas hoy</p></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-users"></i></div><div class="stat-info"><h3>${DB.clientes.length}</h3><p>Clientes</p></div></div>
+      <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-paw"></i></div><div class="stat-info"><h3>${DB.pacientes.length}</h3><p>Pacientes</p></div></div>
+    </div>
+    <div class="card"><div class="card-header"><h3>Citas del día</h3></div>
+    <div class="card-body"><table>
+      <thead><tr><th>Hora</th><th>Paciente</th><th>Motivo</th><th>Observaciones</th></tr></thead>
+      <tbody>`;
+  if (!cHoy.length) {
+    html += '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Sin citas para hoy</td></tr>';
+  } else {
+    html += cHoy.map(c=>`<tr><td>—</td><td>${getNombrePaciente(c.pacienteId)}</td><td>${c.motivo}</td><td style="color:var(--muted)">${c.observaciones||'—'}</td></tr>`).join('');
+  }
+  html += '</tbody></table></div></div>';
+
+  // Reemplazar la sección dashboard con el informe temporalmente
+  document.getElementById('section-dashboard').innerHTML = html;
+  showSection('dashboard');
+  setTimeout(()=>{ location.reload(); },8000);
+  toast('Informe generado. Volviendo al dashboard en 8s…');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════════
+renderDashboard();
+</script>
+</body>
+</html>
+
+
+
