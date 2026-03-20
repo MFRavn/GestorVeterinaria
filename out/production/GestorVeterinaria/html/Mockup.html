@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetManager Pro - Navegación Completa</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #27ae60;
+            --bg-light: #f4f7f6;
+            --white: #ffffff;
+            --text-muted: #7f8c8d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); display: flex; min-height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        aside { width: 260px; background-color: var(--primary); color: white; padding: 20px; display: flex; flex-direction: column; z-index: 100; }
+        .logo { font-size: 1.5rem; font-weight: bold; margin-bottom: 30px; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
+        
+        nav ul { list-style: none; }
+        nav h3 { font-size: 0.7rem; text-transform: uppercase; color: #95a5a6; margin: 20px 0 10px 0; }
+        nav li { padding: 12px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; }
+        nav li:hover, nav li.active { background-color: var(--secondary); color: white; }
+
+        /* Contenedor Principal */
+        main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .content-section { padding: 30px; display: none; } /* Ocultas por defecto */
+        .content-section.active { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Estilos de Componentes */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .table-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { color: var(--text-muted); font-weight: 600; }
+
+        /* Formularios */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary); }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-success { background: var(--accent); color: white; }
+
+        .modal-mockup { background: #eef2f3; padding: 20px; border-radius: 8px; border: 1px dashed #3498db; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="logo"><i class="fas fa-paw"></i> VetManager</div>
+        <nav>
+            <h3>General</h3>
+            <ul>
+                <li onclick="showSection('dashboard')" class="nav-item active" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</li>
+                <li onclick="showSection('clientes')" class="nav-item" id="nav-clientes"><i class="fas fa-users"></i> Clientes</li>
+                <li onclick="showSection('pacientes')" class="nav-item" id="nav-pacientes"><i class="fas fa-dog"></i> Pacientes</li>
+                <li onclick="showSection('citas')" class="nav-item" id="nav-citas"><i class="fas fa-calendar-alt"></i> Citas</li>
+            </ul>
+            <h3>Reportes</h3>
+            <ul>
+                <li onclick="alert('Generando Informe PDF...')"><i class="fas fa-file-medical"></i> Informe Diario</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <header>
+            <h2 id="page-title">Dashboard</h2>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <span id="clock" style="color: var(--text-muted);"></span>
+                <button class="btn btn-success" onclick="alert('Datos guardados en veterinaria_datos.dat')"><i class="fas fa-save"></i> Guardar</button>
+            </div>
+        </header>
+
+        <section id="dashboard" class="content-section active">
+            <div class="stats-grid">
+                <div class="card"><h3>12</h3><p>Citas hoy</p></div>
+                <div class="card"><h3>45</h3><p>Nuevos Clientes</p></div>
+                <div class="card"><h3>8</h3><p>En Sala de Espera</p></div>
+            </div>
+            <div class="table-container">
+                <h3>Próximas Citas</h3>
+                <table>
+                    <thead><tr><th>Hora</th><th>Paciente</th><th>Motivo</th><th>Estado</th></tr></thead>
+                    <tbody>
+                        <tr><td>09:00</td><td>Toby (Perro)</td><td>Vacuna</td><td><span style="color: var(--accent)">Confirmado</span></td></tr>
+                        <tr><td>10:30</td><td>Misi (Gato)</td><td>Cirugía</td><td><span style="color: #f39c12">Pendiente</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="clientes" class="content-section">
+            <div class="table-container">
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <h3>Listado de Clientes</h3>
+                    <button class="btn btn-primary" onclick="alert('Abrir formulario nuevo cliente')">+ Nuevo Cliente</button>
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>Carlos Ruiz</td><td>600123456</td><td>carlos@mail.com</td><td><i class="fas fa-edit"></i> <i class="fas fa-trash"></i></td></tr>
+                        <tr><td>2</td><td>Ana Belén</td><td>655987321</td><td>ana@mail.com</td><td><i class="fas fa-edit"></i> <i class="fas fa-trash"></i></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="pacientes" class="content-section">
+            <div class="table-container">
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <h3>Pacientes Registrados</h3>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" placeholder="Buscar por nombre..." style="width:200px">
+                        <button class="btn btn-primary">Buscar</button>
+                    </div>
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Nombre</th><th>Especie</th><th>Dueño</th><th>Edad</th></tr></thead>
+                    <tbody>
+                        <tr><td>101</td><td>Bruno</td><td>Perro (Boxer)</td><td>Carlos Ruiz</td><td>4 años</td></tr>
+                        <tr><td>102</td><td>Kira</td><td>Gato (Común)</td><td>Ana Belén</td><td>2 años</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="citas" class="content-section">
+            <div class="table-container" style="max-width: 600px; margin: 0 auto;">
+                <h3>Agendar Nueva Cita</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Complete los datos para la visita médica</p>
+                
+                <form onsubmit="event.preventDefault(); alert('Cita agendada correctamente'); showSection('dashboard');">
+                    <div class="form-group">
+                        <label>Seleccionar Paciente</label>
+                        <select>
+                            <option>Bruno (Dueño: Carlos Ruiz)</option>
+                            <option>Kira (Dueño: Ana Belén)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de la Cita</label>
+                        <input type="date">
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo</label>
+                        <input type="text" placeholder="Ej: Revisión anual">
+                    </div>
+                    <div class="form-group">
+                        <label>Observaciones Preliminares</label>
+                        <textarea rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%">Confirmar y Agendar</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            // Quitar clase active de los menús
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Mostrar la seleccionada
+            document.getElementById(sectionId).classList.add('active');
+            document.getElementById('nav-' + sectionId).classList.add('active');
+
+            // Cambiar título del header
+            const titles = {
+                'dashboard': 'Dashboard Principal',
+                'clientes': 'Gestión de Clientes',
+                'pacientes': 'Expedientes de Pacientes',
+                'citas': 'Agenda de Citas'
+            };
+            document.getElementById('page-title').innerText = titles[sectionId];
+        }
+
+        // Reloj simple para el header
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleString();
+        }, 1000);
+    </script>
+</body>
+</html>

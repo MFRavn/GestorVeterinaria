@@ -1,0 +1,1006 @@
+package Java;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * VentanaPrincipal — Interfaz gráfica Swing para VetManager Pro
+ * 
+ * Diseño inspirado en el mockup HTML con:
+ * - Sidebar de navegación
+ * - Panel central con pestañas (Dashboard, Clientes, Pacientes, Citas)
+ * - Tablas interactivas
+ * - Formularios en diálogos
+ */
+public class VentanaPrincipal extends JFrame {
+    
+    // Componentes principales
+    private GestorVeterinaria gestor;
+    private CardLayout cardLayout;
+    private JPanel panelCentral;
+    
+    // Paneles de cada sección
+    private JPanel panelDashboard;
+    private JPanel panelClientes;
+    private JPanel panelPacientes;
+    private JPanel panelCitas;
+    
+    // Tablas
+    private JTable tablaClientes;
+    private JTable tablaPacientes;
+    private JTable tablaCitas;
+    private DefaultTableModel modeloClientes;
+    private DefaultTableModel modeloPacientes;
+    private DefaultTableModel modeloCitas;
+    
+    // Labels de estadísticas del dashboard
+    private JLabel lblStatClientes;
+    private JLabel lblStatPacientes;
+    private JLabel lblStatCitas;
+    private JLabel lblStatCitasHoy;
+    
+    // Colores del tema (inspirado en el HTML)
+    private final Color COLOR_PRIMARY   = new Color(42, 62, 80);    // #2c3e50
+    private final Color COLOR_SECONDARY = new Color(52, 152, 219);  // #3498db
+    private final Color COLOR_ACCENT    = new Color(39, 174, 96);   // #27ae60
+    private final Color COLOR_BG        = new Color(244, 247, 246); // #f4f7f6
+    private final Color COLOR_SURFACE   = Color.WHITE;
+    private final Color COLOR_TEXT      = new Color(30, 41, 59);
+    private final Color COLOR_MUTED     = new Color(100, 116, 139);
+    
+    public VentanaPrincipal(GestorVeterinaria gestor) {
+        this.gestor = gestor;
+        
+        // Configuración de la ventana principal
+        setTitle("VetManager Pro - Sistema de Gestión Veterinaria");
+        setSize(1200, 700);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        
+        // Layout principal: BorderLayout
+        setLayout(new BorderLayout());
+        
+        // Crear componentes
+        crearSidebar();
+        crearPanelCentral();
+        crearBarraSuperior();
+        
+        // Aplicar tema general
+        getContentPane().setBackground(COLOR_BG);
+        
+        // Cargar datos iniciales
+        actualizarTodo();
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  SIDEBAR (Panel izquierdo de navegación)
+    // ══════════════════════════════════════════════════════════════
+    private void crearSidebar() {
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setBackground(COLOR_PRIMARY);
+        sidebar.setPreferredSize(new Dimension(240, 0));
+        sidebar.setBorder(BorderFactory.createEmptyBorder(20, 15, 20, 15));
+        
+        // Logo
+        JLabel lblLogo = new JLabel("🐾 VetManager Pro");
+        lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblLogo.setForeground(COLOR_SECONDARY);
+        lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebar.add(lblLogo);
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0, 8)));
+        
+        JLabel lblVersion = new JLabel("v2.0 - Sistema de Gestión");
+        lblVersion.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        lblVersion.setForeground(new Color(148, 163, 184));
+        lblVersion.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebar.add(lblVersion);
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0, 30)));
+        
+        // Separador "GENERAL"
+        JLabel lblSeccion = new JLabel("GENERAL");
+        lblSeccion.setFont(new Font("Segoe UI", Font.BOLD, 9));
+        lblSeccion.setForeground(new Color(149, 165, 166));
+        lblSeccion.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebar.add(lblSeccion);
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
+        
+        // Botones de navegación
+        sidebar.add(crearBotonNav("📊 Dashboard", "dashboard"));
+        sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+        sidebar.add(crearBotonNav("👥 Clientes", "clientes"));
+        sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+        sidebar.add(crearBotonNav("🐾 Pacientes", "pacientes"));
+        sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+        sidebar.add(crearBotonNav("📅 Citas", "citas"));
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0, 30)));
+        
+        // Separador "ACCIONES"
+        JLabel lblAcciones = new JLabel("ACCIONES");
+        lblAcciones.setFont(new Font("Segoe UI", Font.BOLD, 9));
+        lblAcciones.setForeground(new Color(149, 165, 166));
+        lblAcciones.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebar.add(lblAcciones);
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
+        
+        JButton btnGuardar = crearBotonNav("💾 Guardar Datos", null);
+        btnGuardar.addActionListener(e -> {
+            gestor.guardarDatos();
+            JOptionPane.showMessageDialog(this, "✓ Datos guardados correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        });
+        sidebar.add(btnGuardar);
+        
+        sidebar.add(Box.createVerticalGlue());
+        
+        // Footer
+        JLabel lblStatus = new JLabel("● Conectado a MySQL");
+        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        lblStatus.setForeground(COLOR_ACCENT);
+        lblStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebar.add(lblStatus);
+        
+        add(sidebar, BorderLayout.WEST);
+    }
+    
+    private JButton crearBotonNav(String texto, String card) {
+        JButton btn = new JButton(texto);
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btn.setForeground(new Color(203, 213, 225));
+        btn.setBackground(COLOR_PRIMARY);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        // Hover effect
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                if (card != null) btn.setBackground(new Color(52, 73, 94));
+            }
+            public void mouseExited(MouseEvent e) {
+                if (card != null) btn.setBackground(COLOR_PRIMARY);
+            }
+        });
+        
+        if (card != null) {
+            btn.addActionListener(e -> {
+                cardLayout.show(panelCentral, card);
+                if (card.equals("dashboard")) actualizarDashboard();
+                if (card.equals("clientes"))  actualizarTablaClientes();
+                if (card.equals("pacientes")) actualizarTablaPacientes();
+                if (card.equals("citas"))     actualizarTablaCitas();
+            });
+        }
+        
+        return btn;
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  BARRA SUPERIOR
+    // ══════════════════════════════════════════════════════════════
+    private void crearBarraSuperior() {
+        JPanel barra = new JPanel(new BorderLayout());
+        barra.setBackground(COLOR_SURFACE);
+        barra.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(12, 20, 12, 20)
+        ));
+        
+        JLabel lblTitulo = new JLabel("Dashboard Principal");
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblTitulo.setForeground(COLOR_TEXT);
+        
+        // Reloj en tiempo real
+        JLabel lblReloj = new JLabel();
+        lblReloj.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblReloj.setForeground(COLOR_MUTED);
+        Timer timer = new Timer(1000, e -> {
+            lblReloj.setText(LocalDate.now().toString() + " " + 
+                java.time.LocalTime.now().toString().substring(0, 8));
+        });
+        timer.start();
+        
+        barra.add(lblTitulo, BorderLayout.WEST);
+        barra.add(lblReloj, BorderLayout.EAST);
+        
+        add(barra, BorderLayout.NORTH);
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  PANEL CENTRAL (con CardLayout para cambiar entre secciones)
+    // ══════════════════════════════════════════════════════════════
+    private void crearPanelCentral() {
+        cardLayout = new CardLayout();
+        panelCentral = new JPanel(cardLayout);
+        panelCentral.setBackground(COLOR_BG);
+        
+        panelDashboard  = crearPanelDashboard();
+        panelClientes   = crearPanelClientes();
+        panelPacientes  = crearPanelPacientes();
+        panelCitas      = crearPanelCitas();
+        
+        panelCentral.add(panelDashboard,  "dashboard");
+        panelCentral.add(panelClientes,   "clientes");
+        panelCentral.add(panelPacientes,  "pacientes");
+        panelCentral.add(panelCitas,      "citas");
+        
+        add(panelCentral, BorderLayout.CENTER);
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  DASHBOARD
+    // ══════════════════════════════════════════════════════════════
+    private JPanel panelContenidoDashboard; // Panel que cambiará según haya o no citas
+    
+    private JPanel crearPanelDashboard() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(COLOR_BG);
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        
+        // Grid de estadísticas (4 cards)
+        JPanel gridStats = new JPanel(new GridLayout(1, 4, 15, 0));
+        gridStats.setBackground(COLOR_BG);
+        gridStats.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+        
+        lblStatCitasHoy  = new JLabel("0");
+        lblStatClientes  = new JLabel("0");
+        lblStatPacientes = new JLabel("0");
+        lblStatCitas     = new JLabel("0");
+        
+        gridStats.add(crearCardStat("📅", lblStatCitasHoy,  "Citas hoy", new Color(59, 130, 246)));
+        gridStats.add(crearCardStat("👥", lblStatClientes,  "Clientes",  new Color(16, 185, 129)));
+        gridStats.add(crearCardStat("🐾", lblStatPacientes, "Pacientes", new Color(245, 158, 11)));
+        gridStats.add(crearCardStat("📆", lblStatCitas,     "Citas tot", new Color(239, 68, 68)));
+        
+        panel.add(gridStats);
+        panel.add(Box.createRigidArea(new Dimension(0, 20)));
+        
+        // Panel de contenido dinámico (bienvenida o citas)
+        panelContenidoDashboard = new JPanel();
+        panelContenidoDashboard.setLayout(new BoxLayout(panelContenidoDashboard, BoxLayout.Y_AXIS));
+        panelContenidoDashboard.setBackground(COLOR_BG);
+        
+        panel.add(panelContenidoDashboard);
+        panel.add(Box.createVerticalGlue());
+        
+        return panel;
+    }
+    
+    private JPanel crearPanelBienvenida() {
+        JPanel panelBienvenida = new JPanel();
+        panelBienvenida.setBackground(COLOR_SURFACE);
+        panelBienvenida.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(30, 30, 30, 30)
+        ));
+        panelBienvenida.setLayout(new BoxLayout(panelBienvenida, BoxLayout.Y_AXIS));
+        panelBienvenida.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+        
+        JLabel lblBienvenida = new JLabel("¡Bienvenido a VetManager Pro!");
+        lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblBienvenida.setForeground(COLOR_TEXT);
+        lblBienvenida.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel lblSubtitulo = new JLabel("Usa el menú lateral para navegar por las distintas secciones");
+        lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblSubtitulo.setForeground(COLOR_MUTED);
+        lblSubtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        panelBienvenida.add(lblBienvenida);
+        panelBienvenida.add(Box.createRigidArea(new Dimension(0, 8)));
+        panelBienvenida.add(lblSubtitulo);
+        
+        return panelBienvenida;
+    }
+    
+    private JPanel crearPanelTarjetasCitas() {
+        JPanel contenedor = new JPanel();
+        contenedor.setLayout(new BoxLayout(contenedor, BoxLayout.Y_AXIS));
+        contenedor.setBackground(COLOR_BG);
+        
+        // Título de la sección
+        JPanel headerSeccion = new JPanel(new BorderLayout());
+        headerSeccion.setBackground(COLOR_BG);
+        headerSeccion.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        
+        JLabel lblTitulo = new JLabel("📅 Próximas Citas");
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblTitulo.setForeground(COLOR_TEXT);
+        
+        headerSeccion.add(lblTitulo, BorderLayout.WEST);
+        contenedor.add(headerSeccion);
+        contenedor.add(Box.createRigidArea(new Dimension(0, 12)));
+        
+        // Panel scrollable con las tarjetas
+        JPanel panelTarjetas = new JPanel();
+        panelTarjetas.setLayout(new BoxLayout(panelTarjetas, BoxLayout.Y_AXIS));
+        panelTarjetas.setBackground(COLOR_BG);
+        
+        // Obtener citas ordenadas por fecha
+        List<Cita> citas = gestor.getCitas();
+        citas.sort((a, b) -> a.getFecha().compareTo(b.getFecha()));
+        
+        // Mostrar máximo 6 citas
+        int maxCitas = Math.min(citas.size(), 6);
+        LocalDate hoy = LocalDate.now();
+        
+        for (int i = 0; i < maxCitas; i++) {
+            Cita cita = citas.get(i);
+            panelTarjetas.add(crearTarjetaCita(cita, hoy));
+            if (i < maxCitas - 1) {
+                panelTarjetas.add(Box.createRigidArea(new Dimension(0, 10)));
+            }
+        }
+        
+        JScrollPane scroll = new JScrollPane(panelTarjetas);
+        scroll.setBorder(null);
+        scroll.setBackground(COLOR_BG);
+        scroll.getViewport().setBackground(COLOR_BG);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        contenedor.add(scroll);
+        
+        return contenedor;
+    }
+    
+    private JPanel crearTarjetaCita(Cita cita, LocalDate hoy) {
+        JPanel tarjeta = new JPanel(new BorderLayout(12, 0));
+        tarjeta.setBackground(COLOR_SURFACE);
+        tarjeta.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(14, 16, 14, 16)
+        ));
+        tarjeta.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+        
+        // Banda de color lateral según el estado
+        LocalDate fechaCita = cita.getFecha().toLocalDate();
+        Color colorBanda;
+        String estadoTexto;
+        
+        if (fechaCita.equals(hoy)) {
+            colorBanda = new Color(59, 130, 246);  // Azul - Hoy
+            estadoTexto = "HOY";
+        } else if (fechaCita.isBefore(hoy)) {
+            colorBanda = new Color(156, 163, 175); // Gris - Pasada
+            estadoTexto = "PASADA";
+        } else {
+            colorBanda = new Color(16, 185, 129);  // Verde - Próxima
+            estadoTexto = "PRÓXIMA";
+        }
+        
+        JPanel bandaLateral = new JPanel();
+        bandaLateral.setBackground(colorBanda);
+        bandaLateral.setPreferredSize(new Dimension(4, 0));
+        tarjeta.add(bandaLateral, BorderLayout.WEST);
+        
+        // Contenido principal
+        JPanel contenido = new JPanel();
+        contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
+        contenido.setBackground(COLOR_SURFACE);
+        
+        // Línea 1: Paciente + Badge de estado
+        JPanel linea1 = new JPanel(new BorderLayout());
+        linea1.setBackground(COLOR_SURFACE);
+        linea1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
+        
+        Paciente paciente = cita.getPaciente();
+        JLabel lblPaciente = new JLabel("🐾 " + paciente.getNombre() + " (" + paciente.getEspecie() + ")");
+        lblPaciente.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblPaciente.setForeground(COLOR_TEXT);
+        
+        JLabel lblEstado = new JLabel(estadoTexto);
+        lblEstado.setFont(new Font("Segoe UI", Font.BOLD, 9));
+        lblEstado.setForeground(colorBanda);
+        lblEstado.setOpaque(true);
+        lblEstado.setBackground(new Color(colorBanda.getRed(), colorBanda.getGreen(), colorBanda.getBlue(), 25));
+        lblEstado.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        
+        linea1.add(lblPaciente, BorderLayout.WEST);
+        linea1.add(lblEstado, BorderLayout.EAST);
+        
+        // Línea 2: Motivo
+        JLabel lblMotivo = new JLabel("💬 " + cita.getMotivo());
+        lblMotivo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblMotivo.setForeground(COLOR_TEXT);
+        lblMotivo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Línea 3: Fecha y dueño
+        String nombreDueno = paciente.getDueno().getNombre();
+        JLabel lblInfo = new JLabel("📅 " + cita.getFecha() + "  •  👤 " + nombreDueno);
+        lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblInfo.setForeground(COLOR_MUTED);
+        lblInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        contenido.add(linea1);
+        contenido.add(Box.createRigidArea(new Dimension(0, 4)));
+        contenido.add(lblMotivo);
+        contenido.add(Box.createRigidArea(new Dimension(0, 4)));
+        contenido.add(lblInfo);
+        
+        tarjeta.add(contenido, BorderLayout.CENTER);
+        
+        // Hover effect
+        tarjeta.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                tarjeta.setBackground(new Color(248, 250, 252));
+                contenido.setBackground(new Color(248, 250, 252));
+                linea1.setBackground(new Color(248, 250, 252));
+                tarjeta.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            public void mouseExited(MouseEvent e) {
+                tarjeta.setBackground(COLOR_SURFACE);
+                contenido.setBackground(COLOR_SURFACE);
+                linea1.setBackground(COLOR_SURFACE);
+                tarjeta.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+            public void mouseClicked(MouseEvent e) {
+                // Ir a la sección de citas y seleccionar esta cita
+                cardLayout.show(panelCentral, "citas");
+                actualizarTablaCitas();
+                
+                // Buscar la fila en la tabla
+                for (int i = 0; i < modeloCitas.getRowCount(); i++) {
+                    if ((int) modeloCitas.getValueAt(i, 0) == cita.getId()) {
+                        tablaCitas.setRowSelectionInterval(i, i);
+                        tablaCitas.scrollRectToVisible(tablaCitas.getCellRect(i, 0, true));
+                        break;
+                    }
+                }
+            }
+        });
+        
+        return tarjeta;
+    }
+    
+    private JPanel crearCardStat(String icono, JLabel labelValor, String titulo, Color colorIcono) {
+        JPanel card = new JPanel(new BorderLayout(12, 0));
+        card.setBackground(COLOR_SURFACE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(18, 18, 18, 18)
+        ));
+        
+        // Icono
+        JLabel lblIcono = new JLabel(icono);
+        lblIcono.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
+        lblIcono.setForeground(colorIcono);
+        
+        // Info
+        JPanel panelInfo = new JPanel();
+        panelInfo.setLayout(new BoxLayout(panelInfo, BoxLayout.Y_AXIS));
+        panelInfo.setBackground(COLOR_SURFACE);
+        
+        labelValor.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        labelValor.setForeground(COLOR_TEXT);
+        labelValor.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JLabel lblTitulo = new JLabel(titulo);
+        lblTitulo.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblTitulo.setForeground(COLOR_MUTED);
+        lblTitulo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        panelInfo.add(labelValor);
+        panelInfo.add(Box.createRigidArea(new Dimension(0, 2)));
+        panelInfo.add(lblTitulo);
+        
+        card.add(lblIcono, BorderLayout.WEST);
+        card.add(panelInfo, BorderLayout.CENTER);
+        
+        return card;
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  CLIENTES
+    // ══════════════════════════════════════════════════════════════
+    private JPanel crearPanelClientes() {
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(COLOR_BG);
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        
+        // Barra superior: búsqueda + botón
+        JPanel barraTop = new JPanel(new BorderLayout(10, 0));
+        barraTop.setBackground(COLOR_BG);
+        
+        JTextField txtBuscar = new JTextField();
+        txtBuscar.setPreferredSize(new Dimension(300, 35));
+        txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtBuscar.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        
+        JButton btnNuevo = new JButton("➕ Nuevo Cliente");
+        btnNuevo.setBackground(COLOR_SECONDARY);
+        btnNuevo.setForeground(Color.WHITE);
+        btnNuevo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnNuevo.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        btnNuevo.setFocusPainted(false);
+        btnNuevo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnNuevo.addActionListener(e -> abrirFormularioCliente(null));
+        
+        barraTop.add(txtBuscar, BorderLayout.CENTER);
+        barraTop.add(btnNuevo, BorderLayout.EAST);
+        
+        // Tabla
+        String[] columnas = {"ID", "Nombre", "Teléfono", "Email", "Dirección"};
+        modeloClientes = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tablaClientes = new JTable(modeloClientes);
+        tablaClientes.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        tablaClientes.setRowHeight(28);
+        tablaClientes.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
+        tablaClientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        // Doble click para editar
+        tablaClientes.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int fila = tablaClientes.getSelectedRow();
+                    if (fila >= 0) {
+                        int id = (int) modeloClientes.getValueAt(fila, 0);
+                        Cliente c = gestor.buscarCliente(id);
+                        abrirFormularioCliente(c);
+                    }
+                }
+            }
+        });
+        
+        JScrollPane scroll = new JScrollPane(tablaClientes);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(226, 232, 240)));
+        
+        panel.add(barraTop, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  PACIENTES
+    // ══════════════════════════════════════════════════════════════
+    private JPanel crearPanelPacientes() {
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(COLOR_BG);
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        
+        JPanel barraTop = new JPanel(new BorderLayout(10, 0));
+        barraTop.setBackground(COLOR_BG);
+        
+        JTextField txtBuscar = new JTextField();
+        txtBuscar.setPreferredSize(new Dimension(300, 35));
+        txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtBuscar.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        
+        JButton btnNuevo = new JButton("➕ Nuevo Paciente");
+        btnNuevo.setBackground(COLOR_SECONDARY);
+        btnNuevo.setForeground(Color.WHITE);
+        btnNuevo.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnNuevo.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        btnNuevo.setFocusPainted(false);
+        btnNuevo.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnNuevo.addActionListener(e -> abrirFormularioPaciente(null));
+        
+        barraTop.add(txtBuscar, BorderLayout.CENTER);
+        barraTop.add(btnNuevo, BorderLayout.EAST);
+        
+        String[] columnas = {"ID", "Nombre", "Especie", "Raza", "Edad", "Dueño"};
+        modeloPacientes = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tablaPacientes = new JTable(modeloPacientes);
+        tablaPacientes.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        tablaPacientes.setRowHeight(28);
+        tablaPacientes.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
+        
+        tablaPacientes.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int fila = tablaPacientes.getSelectedRow();
+                    if (fila >= 0) {
+                        int id = (int) modeloPacientes.getValueAt(fila, 0);
+                        Paciente p = gestor.buscarPaciente(id);
+                        abrirFormularioPaciente(p);
+                    }
+                }
+            }
+        });
+        
+        JScrollPane scroll = new JScrollPane(tablaPacientes);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(226, 232, 240)));
+        
+        panel.add(barraTop, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  CITAS
+    // ══════════════════════════════════════════════════════════════
+    private JPanel crearPanelCitas() {
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(COLOR_BG);
+        panel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        
+        JPanel barraTop = new JPanel(new BorderLayout(10, 0));
+        barraTop.setBackground(COLOR_BG);
+        
+        JTextField txtBuscar = new JTextField();
+        txtBuscar.setPreferredSize(new Dimension(300, 35));
+        txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        txtBuscar.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240)),
+            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        
+        JButton btnNueva = new JButton("➕ Nueva Cita");
+        btnNueva.setBackground(COLOR_ACCENT);
+        btnNueva.setForeground(Color.WHITE);
+        btnNueva.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnNueva.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        btnNueva.setFocusPainted(false);
+        btnNueva.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnNueva.addActionListener(e -> abrirFormularioCita(null));
+        
+        barraTop.add(txtBuscar, BorderLayout.CENTER);
+        barraTop.add(btnNueva, BorderLayout.EAST);
+        
+        String[] columnas = {"ID", "Fecha", "Paciente", "Motivo", "Observaciones"};
+        modeloCitas = new DefaultTableModel(columnas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        tablaCitas = new JTable(modeloCitas);
+        tablaCitas.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        tablaCitas.setRowHeight(28);
+        tablaCitas.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
+        
+        tablaCitas.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int fila = tablaCitas.getSelectedRow();
+                    if (fila >= 0) {
+                        int id = (int) modeloCitas.getValueAt(fila, 0);
+                        Cita c = gestor.buscarCita(id);
+                        abrirFormularioCita(c);
+                    }
+                }
+            }
+        });
+        
+        JScrollPane scroll = new JScrollPane(tablaCitas);
+        scroll.setBorder(BorderFactory.createLineBorder(new Color(226, 232, 240)));
+        
+        panel.add(barraTop, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  FORMULARIOS (Diálogos modales)
+    // ══════════════════════════════════════════════════════════════
+    
+    private void abrirFormularioCliente(Cliente cliente) {
+        JDialog dialog = new JDialog(this, cliente == null ? "Nuevo Cliente" : "Editar Cliente", true);
+        dialog.setSize(450, 280);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout(10, 10));
+        
+        JPanel form = new JPanel(new GridLayout(4, 2, 10, 10));
+        form.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        
+        form.add(new JLabel("Nombre:"));
+        JTextField txtNombre = new JTextField(cliente != null ? cliente.getNombre() : "");
+        form.add(txtNombre);
+        
+        form.add(new JLabel("Teléfono:"));
+        JTextField txtTelefono = new JTextField(cliente != null ? cliente.getTelefono() : "");
+        form.add(txtTelefono);
+        
+        form.add(new JLabel("Email:"));
+        JTextField txtEmail = new JTextField(cliente != null ? cliente.getEmail() : "");
+        form.add(txtEmail);
+        
+        form.add(new JLabel("Dirección:"));
+        JTextField txtDireccion = new JTextField(cliente != null ? cliente.getDireccion() : "");
+        form.add(txtDireccion);
+        
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnCancelar = new JButton("Cancelar");
+        JButton btnGuardar = new JButton("Guardar");
+        
+        btnGuardar.setBackground(COLOR_SECONDARY);
+        btnGuardar.setForeground(Color.WHITE);
+        btnGuardar.setFocusPainted(false);
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        btnGuardar.addActionListener(e -> {
+            String nombre = txtNombre.getText().trim();
+            String telefono = txtTelefono.getText().trim();
+            String email = txtEmail.getText().trim();
+            String direccion = txtDireccion.getText().trim();
+            
+            if (nombre.isEmpty() || telefono.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Nombre y teléfono son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (cliente == null) {
+                gestor.agregarCliente(new Cliente(nombre, telefono, email, direccion));
+            } else {
+                cliente.setNombre(nombre);
+                cliente.setTelefono(telefono);
+                cliente.setEmail(email);
+                cliente.setDireccion(direccion);
+            }
+            
+            actualizarTablaClientes();
+            actualizarDashboard();
+            dialog.dispose();
+        });
+        
+        botones.add(btnCancelar);
+        botones.add(btnGuardar);
+        
+        dialog.add(form, BorderLayout.CENTER);
+        dialog.add(botones, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+    
+    private void abrirFormularioPaciente(Paciente paciente) {
+        JDialog dialog = new JDialog(this, paciente == null ? "Nuevo Paciente" : "Editar Paciente", true);
+        dialog.setSize(450, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout(10, 10));
+        
+        JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
+        form.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        
+        form.add(new JLabel("Nombre:"));
+        JTextField txtNombre = new JTextField(paciente != null ? paciente.getNombre() : "");
+        form.add(txtNombre);
+        
+        form.add(new JLabel("Especie:"));
+        JTextField txtEspecie = new JTextField(paciente != null ? paciente.getEspecie() : "");
+        form.add(txtEspecie);
+        
+        form.add(new JLabel("Raza:"));
+        JTextField txtRaza = new JTextField(paciente != null ? paciente.getRaza() : "");
+        form.add(txtRaza);
+        
+        form.add(new JLabel("Edad:"));
+        JTextField txtEdad = new JTextField(paciente != null ? String.valueOf(paciente.getEdad()) : "");
+        form.add(txtEdad);
+        
+        form.add(new JLabel("Dueño:"));
+        JComboBox<String> comboDueno = new JComboBox<>();
+        List<Cliente> clientes = gestor.getClientes();
+        for (Cliente c : clientes) {
+            comboDueno.addItem(c.getId() + " - " + c.getNombre());
+        }
+        if (paciente != null) {
+            comboDueno.setSelectedItem(paciente.getDueno().getId() + " - " + paciente.getDueno().getNombre());
+        }
+        form.add(comboDueno);
+        
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnCancelar = new JButton("Cancelar");
+        JButton btnGuardar = new JButton("Guardar");
+        
+        btnGuardar.setBackground(COLOR_SECONDARY);
+        btnGuardar.setForeground(Color.WHITE);
+        btnGuardar.setFocusPainted(false);
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        btnGuardar.addActionListener(e -> {
+            String nombre = txtNombre.getText().trim();
+            String especie = txtEspecie.getText().trim();
+            String raza = txtRaza.getText().trim();
+            int edad;
+            try {
+                edad = Integer.parseInt(txtEdad.getText().trim());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Edad debe ser un número", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            String duenoStr = (String) comboDueno.getSelectedItem();
+            int clienteId = Integer.parseInt(duenoStr.split(" - ")[0]);
+            Cliente dueno = gestor.buscarCliente(clienteId);
+            
+            if (nombre.isEmpty() || especie.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Nombre y especie son obligatorios", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (paciente == null) {
+                gestor.agregarPaciente(new Paciente(nombre, especie, raza, edad, dueno));
+            } else {
+                paciente.setNombre(nombre);
+                paciente.setEspecie(especie);
+                paciente.setRaza(raza);
+                paciente.setEdad(edad);
+                paciente.setDueno(dueno);
+            }
+            
+            actualizarTablaPacientes();
+            actualizarDashboard();
+            dialog.dispose();
+        });
+        
+        botones.add(btnCancelar);
+        botones.add(btnGuardar);
+        
+        dialog.add(form, BorderLayout.CENTER);
+        dialog.add(botones, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+    
+    private void abrirFormularioCita(Cita cita) {
+        JDialog dialog = new JDialog(this, cita == null ? "Nueva Cita" : "Editar Cita", true);
+        dialog.setSize(450, 300);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout(10, 10));
+        
+        JPanel form = new JPanel(new GridLayout(4, 2, 10, 10));
+        form.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        
+        form.add(new JLabel("Paciente:"));
+        JComboBox<String> comboPaciente = new JComboBox<>();
+        List<Paciente> pacientes = gestor.getPacientes();
+        for (Paciente p : pacientes) {
+            comboPaciente.addItem(p.getId() + " - " + p.getNombre());
+        }
+        if (cita != null) {
+            comboPaciente.setSelectedItem(cita.getPaciente().getId() + " - " + cita.getPaciente().getNombre());
+            comboPaciente.setEnabled(false);
+        }
+        form.add(comboPaciente);
+        
+        form.add(new JLabel("Fecha (YYYY-MM-DD):"));
+        JTextField txtFecha = new JTextField(cita != null ? cita.getFecha().toString() : LocalDate.now().toString());
+        form.add(txtFecha);
+        
+        form.add(new JLabel("Motivo:"));
+        JTextField txtMotivo = new JTextField(cita != null ? cita.getMotivo() : "");
+        form.add(txtMotivo);
+        
+        form.add(new JLabel("Observaciones:"));
+        JTextField txtObs = new JTextField(cita != null ? cita.getObservaciones() : "");
+        form.add(txtObs);
+        
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnCancelar = new JButton("Cancelar");
+        JButton btnGuardar = new JButton("Guardar");
+        
+        btnGuardar.setBackground(COLOR_ACCENT);
+        btnGuardar.setForeground(Color.WHITE);
+        btnGuardar.setFocusPainted(false);
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        btnGuardar.addActionListener(e -> {
+            String fechaStr = txtFecha.getText().trim();
+            String motivo = txtMotivo.getText().trim();
+            String obs = txtObs.getText().trim();
+            
+            Date fecha;
+            try {
+                fecha = Date.valueOf(fechaStr);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(dialog, "Formato de fecha inválido (YYYY-MM-DD)", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (motivo.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "El motivo es obligatorio", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (cita == null) {
+                String pacienteStr = (String) comboPaciente.getSelectedItem();
+                int pacienteId = Integer.parseInt(pacienteStr.split(" - ")[0]);
+                Paciente paciente = gestor.buscarPaciente(pacienteId);
+                gestor.agregarCita(new Cita(paciente, fecha, motivo, obs));
+            } else {
+                cita.setFecha(fecha);
+                cita.setMotivo(motivo);
+                cita.setObservaciones(obs);
+            }
+            
+            actualizarTablaCitas();
+            actualizarDashboard();
+            dialog.dispose();
+        });
+        
+        botones.add(btnCancelar);
+        botones.add(btnGuardar);
+        
+        dialog.add(form, BorderLayout.CENTER);
+        dialog.add(botones, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  ACTUALIZACIÓN DE DATOS
+    // ══════════════════════════════════════════════════════════════
+    
+    private void actualizarDashboard() {
+        lblStatClientes.setText(String.valueOf(gestor.getClientes().size()));
+        lblStatPacientes.setText(String.valueOf(gestor.getPacientes().size()));
+        lblStatCitas.setText(String.valueOf(gestor.getCitas().size()));
+        
+        LocalDate hoy = LocalDate.now();
+        long citasHoy = gestor.getCitas().stream()
+            .filter(c -> c.getFecha().toLocalDate().equals(hoy))
+            .count();
+        lblStatCitasHoy.setText(String.valueOf(citasHoy));
+        
+        // Actualizar el panel de contenido (bienvenida o tarjetas de citas)
+        panelContenidoDashboard.removeAll();
+        
+        if (gestor.getCitas().isEmpty()) {
+            panelContenidoDashboard.add(crearPanelBienvenida());
+        } else {
+            panelContenidoDashboard.add(crearPanelTarjetasCitas());
+        }
+        
+        panelContenidoDashboard.revalidate();
+        panelContenidoDashboard.repaint();
+    }
+    
+    private void actualizarTablaClientes() {
+        modeloClientes.setRowCount(0);
+        for (Cliente c : gestor.getClientes()) {
+            modeloClientes.addRow(new Object[]{
+                c.getId(), c.getNombre(), c.getTelefono(), c.getEmail(), c.getDireccion()
+            });
+        }
+    }
+    
+    private void actualizarTablaPacientes() {
+        modeloPacientes.setRowCount(0);
+        for (Paciente p : gestor.getPacientes()) {
+            modeloPacientes.addRow(new Object[]{
+                p.getId(), p.getNombre(), p.getEspecie(), p.getRaza(), 
+                p.getEdad() + " años", p.getDueno().getNombre()
+            });
+        }
+    }
+    
+    private void actualizarTablaCitas() {
+        modeloCitas.setRowCount(0);
+        for (Cita c : gestor.getCitas()) {
+            modeloCitas.addRow(new Object[]{
+                c.getId(), c.getFecha(), c.getPaciente().getNombre(), 
+                c.getMotivo(), c.getObservaciones()
+            });
+        }
+    }
+    
+    private void actualizarTodo() {
+        actualizarDashboard();
+        actualizarTablaClientes();
+        actualizarTablaPacientes();
+        actualizarTablaCitas();
+    }
+}

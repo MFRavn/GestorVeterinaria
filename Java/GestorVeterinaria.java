@@ -285,6 +285,7 @@ class GestorVeterinaria {
             }
         }
         System.out.println("✔ Cliente actualizado exitosamente");
+        sc.close();
     }
 
     public void eliminarCliente(int id) {
@@ -385,6 +386,7 @@ class GestorVeterinaria {
             }
         }
         System.out.println("✔ Paciente actualizado exitosamente");
+        sc.close();
     }
 
     public void eliminarPaciente(int id) {
@@ -465,6 +467,7 @@ class GestorVeterinaria {
             }
         }
         System.out.println("✔ Cita actualizada exitosamente");
+        sc.close();
     }
 
     public void eliminarCita(int id) {
