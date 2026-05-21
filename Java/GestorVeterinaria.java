@@ -16,7 +16,6 @@ import java.util.Scanner;
 
 /**
  * GestorVeterinaria — Capa de lógica de negocio + acceso a datos.
- *
  * Estrategia de persistencia:
  *   · PRINCIPAL  → MySQL (via DatabaseManager / JDBC)
  *   · RESPALDO   → Serialización binaria (.dat)  ← se usa si MySQL no está disponible
@@ -86,10 +85,10 @@ class GestorVeterinaria {
                  ResultSet rs = st.executeQuery(sqlClientes)) {
                 while (rs.next()) {
                     Cliente c = new Cliente(
-                        rs.getString("nombre"),
-                        rs.getString("telefono"),
-                        rs.getString("email"),
-                        rs.getString("direccion")
+                            rs.getString("nombre"),
+                            rs.getString("telefono"),
+                            rs.getString("email"),
+                            rs.getString("direccion")
                     );
                     // Forzamos el ID que viene de la BD (el constructor ya asignó uno temporal)
                     setIdCliente(c, rs.getInt("id"));
@@ -105,11 +104,11 @@ class GestorVeterinaria {
                     Cliente dueno = buscarCliente(rs.getInt("cliente_id"));
                     if (dueno == null) continue;  // integridad: skip huérfanos
                     Paciente p = new Paciente(
-                        rs.getString("nombre"),
-                        rs.getString("especie"),
-                        rs.getString("raza"),
-                        rs.getInt("edad"),
-                        dueno
+                            rs.getString("nombre"),
+                            rs.getString("especie"),
+                            rs.getString("raza"),
+                            rs.getInt("edad"),
+                            dueno
                     );
                     setIdPaciente(p, rs.getInt("id"));
                     pacientes.add(p);
@@ -124,10 +123,10 @@ class GestorVeterinaria {
                     Paciente pac = buscarPaciente(rs.getInt("paciente_id"));
                     if (pac == null) continue;
                     Cita cita = new Cita(
-                        pac,
-                        rs.getDate("fecha"),
-                        rs.getString("motivo"),
-                        rs.getString("observaciones")
+                            pac,
+                            rs.getDate("fecha"),
+                            rs.getString("motivo"),
+                            rs.getString("observaciones")
                     );
                     setIdCita(cita, rs.getInt("id"));
                     citas.add(cita);
@@ -216,7 +215,7 @@ class GestorVeterinaria {
         if (Databasemanager.getInstance().isConectado()) {
             String sql = "INSERT INTO clientes (nombre, telefono, email, direccion) VALUES (?,?,?,?)";
             try (PreparedStatement ps = Databasemanager.getInstance().getConnection()
-                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, cliente.getNombre());
                 ps.setString(2, cliente.getTelefono());
                 ps.setString(3, cliente.getEmail());
@@ -230,6 +229,7 @@ class GestorVeterinaria {
             }
         }
         clientes.add(cliente);
+        guardarEnDat();   // respaldo automático tras cada alta
         System.out.println("✔ Cliente agregado exitosamente (ID: " + cliente.getId() + ")");
     }
 
@@ -317,7 +317,7 @@ class GestorVeterinaria {
         if (Databasemanager.getInstance().isConectado()) {
             String sql = "INSERT INTO pacientes (nombre, especie, raza, edad, cliente_id) VALUES (?,?,?,?,?)";
             try (PreparedStatement ps = Databasemanager.getInstance().getConnection()
-                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, paciente.getNombre());
                 ps.setString(2, paciente.getEspecie());
                 ps.setString(3, paciente.getRaza());
@@ -332,6 +332,7 @@ class GestorVeterinaria {
             }
         }
         pacientes.add(paciente);
+        guardarEnDat();   // respaldo automático tras cada alta
         System.out.println("✔ Paciente agregado exitosamente (ID: " + paciente.getId() + ")");
     }
 
@@ -414,7 +415,7 @@ class GestorVeterinaria {
         if (Databasemanager.getInstance().isConectado()) {
             String sql = "INSERT INTO citas (paciente_id, fecha, motivo, observaciones) VALUES (?,?,?,?)";
             try (PreparedStatement ps = Databasemanager.getInstance().getConnection()
-                        .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    .prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1,    cita.getPaciente().getId());
                 ps.setDate(2,   cita.getFecha());
                 ps.setString(3, cita.getMotivo());
@@ -428,6 +429,7 @@ class GestorVeterinaria {
             }
         }
         citas.add(cita);
+        guardarEnDat();   // respaldo automático tras cada alta
         System.out.println("✔ Cita agendada exitosamente (ID: " + cita.getId() + ")");
     }
 
