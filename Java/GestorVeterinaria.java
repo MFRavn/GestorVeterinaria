@@ -593,18 +593,7 @@ class GestorVeterinaria {
                 .ifPresent(max -> Cita.setContadorId(max + 1));
     }
 
-    // Reflection-free helpers para forzar el ID tras leer de BD.
-    // Funcionan porque el constructor ya incrementó el contador; aquí
-    // simplemente sobreescribimos el campo usando el setter estático de contador
-    // y recreando el objeto... pero es más limpio añadir un setter de id.
-    // NOTA: añade setId() a cada entidad si prefieres; aquí usamos el truco
-    // de ajustar el contador ANTES de construir el objeto.
-    //
-    // En realidad el objeto YA está creado cuando llegamos aquí, así que
-    // necesitamos reflection o un package-private setter.  Optamos por
-    // añadir un método protegido en cada clase (ver nota en README).
-    //
-    // Alternativa temporal: usamos reflection solo internamente.
+
     private void setIdCliente(Cliente c, int id) {
         try {
             java.lang.reflect.Field f = Cliente.class.getDeclaredField("id");
